@@ -6,5 +6,6 @@ ENV MAX_ALLOCATION_MB=4096 \
 
 CMD ["node", "memory-hog.js"]
 
+HEALTHCHECK --interval=5s --timeout=30s --start-period=5s --retries=3 CMD [ "node" , "memory-check.js" ]
 WORKDIR /app
 COPY src/ .

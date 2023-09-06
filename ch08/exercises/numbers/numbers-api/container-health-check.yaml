@@ -1,0 +1,25 @@
+FROM diamol/dotnet-sdk as builder
+
+WORKDIR /src
+# Copy Numbers.Api.csproj to the /src folder of the image
+COPY src/Numbers.Api/Numbers.Api.csproj .
+# Restore the packages
+RUN dotnet restore
+
+# Copy all source code file to /src folder
+COPY src/Numbers.Api .
+# publish the app
+RUN dotnet publish -c Release -o /out Numbers.Api.csproj
+
+# App image
+FROM diamol/dotnet-aspnet
+
+ENTRYPOINT [ "dotnet", "/app/Numbers.Api.dll" ]
+
+#Create an /app directory
+WORKDIR /app
+HEALTHCHECK --interval=30s --timeout=30s --start-period=5s --retries=3 CMD --fail http://localhost/health
+
+# copy /out from builder stage to the /app folder
+COPY --from=builder /out .
+
